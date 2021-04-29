@@ -3,9 +3,9 @@
 Para compilação do projeto são necessários g++ e CMake bem como as bibliotecas Boost e libmongoclient.
 Execute "cmake .." no diretório build e rode os executáveis compilados de dentro do diretório build:
 
-cd gameserver/build
-cmake ..
-make
+	cd gameserver/build
+	cmake ..
+	make
 	./gameserver
 
 
