@@ -6,7 +6,7 @@ Execute "cmake .." no diretório build e rode os executáveis compilados de dent
 cd gameserver/build
 cmake ..
 make
-./gameserver
+	./gameserver
 
 
 
