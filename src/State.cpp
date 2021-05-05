@@ -95,6 +95,16 @@ std::shared_ptr<Session::State> Session::State_Login::handleCommand(Session &ses
 
 
 std::shared_ptr<Session::State> Session::State_Game::handleCommand(Session &session, Session::Command cmd){
+	mongo::client::initialize();
+
+	mongo::DBClientConnection dbConnection;
+	
+	try{
+		dbConnection.connect("localhost");
+	} catch (const mongo::DBException &exception){
+		std::cout << "Caught " << exception.what() << std::endl;
+	}
+
 	std::stringstream ss;
 
 	ss << session.m_activeCharacter->getMessages() << std::endl;
@@ -123,6 +133,20 @@ std::shared_ptr<Session::State> Session::State_Game::handleCommand(Session &sess
 			//	const std::string &dir = cmd.at(1);
 			} else if (cmd.at(0) == "olhar"){
 				ss << session.m_activeCharacter->getLookStr(session.getGameServer().getMap());
+
+				session.m_channel->write(ss.str());
+				return m_self.lock();
+			} else if (cmd.at(0) == "ranking"){
+				std::auto_ptr<mongo::DBClientCursor> cursor = dbConnection.query("mud.characters", mongo::Query().sort("experience"));
+				std::cout << dbConnection.getLastErrorDetailed().toString() << std::endl;
+				ss << "Ranking de maior experiencia:" << std::endl;
+				while (cursor->more()){
+					mongo::BSONObj obj = cursor->next();
+					ss << "Nome: " << obj.getStringField("name") << "	Level: " << obj.getIntField("level") << "	Experiencia: " << obj.getIntField("experience");
+					if(cursor->more()){
+						ss << std::endl;
+					}
+				}
 
 				session.m_channel->write(ss.str());
 				return m_self.lock();
